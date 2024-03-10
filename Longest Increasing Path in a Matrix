@@ -1,0 +1,39 @@
+class Solution {
+
+    bool isValid(vector<vector<int>> &matrix, int i, int j, int i2, int j2){
+        if(i2 >= 0 && i2 < matrix.size() && j2 >=0 && j2< matrix[0].size() && matrix[i2][j2] > matrix[i][j] ){
+            return true;
+        }
+        return false;
+    }
+
+    int LongestIncPathRec(vector<vector<int>> &matrix, int i, int j, vector<vector<int>> &memo)
+    {
+        if(memo[i][j] != -1) return memo[i][j];
+        
+        int xA[4] {1,-1,0,0};
+        int yA[4] {0,0,1,-1};
+
+        int maxx = 1;
+        for(int k = 0; k<4; ++k){
+            if(isValid(matrix, i, j, i+xA[k], j+yA[k])){
+                maxx = max(maxx, 1 + LongestIncPathRec(matrix, i+xA[k], j+yA[k], memo));
+            }
+        }
+        return memo[i][j] = maxx;
+    }
+public:
+    int longestIncreasingPath(vector<vector<int>>& matrix) {
+        
+        int maxLength = 1;
+
+        vector<vector<int>> memo(matrix.size() +1, vector<int>(matrix[0].size(), -1));
+
+        for(int i=0; i<matrix.size(); ++i){
+            for(int j=0; j<matrix[0].size(); ++j){
+                maxLength = std::max(maxLength, LongestIncPathRec(matrix, i, j, memo));
+            }
+        }
+        return maxLength;
+    }
+};
