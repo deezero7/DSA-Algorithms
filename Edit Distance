@@ -1,0 +1,95 @@
+class Solution {
+
+    // int minDistanceRec(string &word1, string &word2, int w1, int w2)
+    // {
+    //     // Base case: if either of the strings is empty, return the length of the other string
+    //     if (w1 < 0) return w2 + 1;
+    //     if (w2 < 0) return w1 + 1;
+
+
+    //     int minn = 0;
+    //     if(word1[w1] == word2[w2]){
+    //         minn = minDistanceRec(word1, word2, w1 - 1, w2 - 1);
+    //     }
+    //     else{
+    //         int inse = 1 + minDistanceRec(word1, word2, w1, w2 -1);
+    //         int del = 1 + minDistanceRec(word1, word2, w1 - 1, w2);
+    //         int repl = 1 + minDistanceRec(word1, word2, w1 - 1, w2 - 1);
+    //         return std::min(inse, std::min(del, repl));
+    //     }
+
+    //     return minn ;
+    // }
+
+    // int minDistanceMemo(string &word1, string &word2, int w1, int w2, vector<vector<int>> &memo)
+    // {
+    //     // Base case: if either of the strings is empty, return the length of the other string
+    //     if (w1 < 0) return w2 + 1;
+    //     if (w2 < 0) return w1 + 1;
+
+    //     if(memo[w1][w2] != -1) return memo[w1][w2];
+
+    //     int minn = 0;
+    //     if(word1[w1] == word2[w2]){
+    //         minn = minDistanceMemo(word1, word2, w1 - 1, w2 - 1, memo);
+    //     }
+    //     else{
+    //         int inse = 1 + minDistanceMemo(word1, word2, w1, w2 -1, memo);
+    //         int del = 1 + minDistanceMemo(word1, word2, w1 - 1, w2, memo);
+    //         int repl = 1 + minDistanceMemo(word1, word2, w1 - 1, w2 - 1, memo);
+    //         return  memo[w1][w2] = std::min(inse, std::min(del, repl));
+    //     }
+
+    //     return memo[w1][w2] = minn ;
+    // }
+
+    int minDistanceTab(string &word1, string &word2)
+    {
+        
+        vector<vector<int>> dp(word1.size() + 1, vector<int>(word2.size() +1, 0));
+
+        // think when w1 is "a" and w2 is "" how many operation required are 1 right so fill table when both 0, 0  ,then  one side w1 = 0 inc w2 linearly , same for w2 = 0; fill
+
+        // Initialize the base cases
+        for (int i = 0; i <= word1.size(); ++i) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= word2.size(); ++j) {
+            dp[0][j] = j;
+        }
+
+        for(int i = 1; i<= word1.size(); ++i){
+            for(int j = 1; j<= word2.size(); ++j){
+
+                int minn = 0;
+                if(word1[i -1] == word2[j-1]){  // 0 row and col we took for base case and started form 1 so -(minus 1) the index while checking
+                    minn = dp[i-1][j-1];
+                }
+                else{
+                    int inse = 1 + dp[i][j-1];
+                    int del = 1 + dp[i-1][j];
+                    int repl = 1 + dp[i-1][j-1];
+                    minn = std::min(inse, std::min(del, repl));
+                }
+
+                dp[i][j] = minn ;
+
+            }
+        }
+
+        return dp[word1.size()][word2.size()];
+    }
+
+
+
+public:
+    int minDistance(string word1, string word2) {
+        
+        // return minDistanceRec(word1, word2, word1.size()- 1, word2.size() - 1);
+
+        // vector<vector<int>> memo(word1.size() + 1, vector<int>(word2.size(), -1));
+        // return minDistanceMemo(word1, word2, word1.size()- 1, word2.size() - 1, memo);
+
+        return minDistanceTab(word1, word2);
+    }
+};
