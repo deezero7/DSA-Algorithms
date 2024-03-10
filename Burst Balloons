@@ -1,0 +1,76 @@
+class Solution {
+
+    // int maxCoinsRec(vector<int> &nums, int s, int e)
+    // {
+    //     // base case
+    //     if(s > e) return 0;
+
+    //     // go in reverse last ballon then go up in all posibilities , yep
+    //     int maxx = INT_MIN;
+    //     for(int i= s; i<= e; ++i){
+    //         int sum = nums[s-1] * nums[i] * nums[e+1] + 
+    //                     maxCoinsRec(nums, s, i-1) + maxCoinsRec(nums, i+1, e);
+            
+    //         maxx = max(maxx, sum);
+    //     }
+    //     return maxx;
+    // }
+
+    int maxCoinsMemo(vector<int> &nums, int s, int e, vector<vector<int>> &memo)
+    {
+        // base case
+        if(s > e) return 0;
+
+        if(memo[s][e] != -1) return memo[s][e];
+
+        // go in reverse last ballon then go up in all posibilities , yep
+        int maxx = INT_MIN;
+        for(int i= s; i<= e; ++i){
+            int sum = nums[s-1] * nums[i] * nums[e+1] + 
+                        maxCoinsMemo(nums, s, i-1, memo) + maxCoinsMemo(nums, i+1, e, memo);
+            
+            maxx = max(maxx, sum);
+        }
+        return memo[s][e] = maxx;
+    }
+
+    int maxCoinsTab(vector<int> &nums, int n)
+    {
+        vector<vector<int>> dp(n+2, vector<int>(n+2, 0));
+
+        for(int s = n; s >= 1; --s){
+            for(int e= 1; e<= n-2; ++e){
+                
+                if(s > e) continue;  // as in base case if s > e then below loop give error
+
+                int maxx = INT_MIN;
+                for(int i= s; i<= e; ++i){
+                    int sum = nums[s-1] * nums[i] * nums[e+1] + 
+                                dp[s][i-1] + dp[i+1][e];
+                    
+                    maxx = max(maxx, sum);
+                }
+                dp[s][e] = maxx;
+
+            }
+        }
+
+        return dp[1][n-2];
+    }
+
+public:
+    int maxCoins(vector<int>& nums) {
+        
+        
+        nums.insert(nums.begin(), 1);
+        nums.push_back(1);
+        int n = nums.size();
+        
+        // return maxCoinsRec(nums, 1, n-2 );
+
+        // vector<vector<int>> memo(n+1, vector<int>(n+1, -1));
+        // return maxCoinsMemo(nums, 1, n-2, memo);
+
+        return maxCoinsTab(nums, n);
+    }
+};
