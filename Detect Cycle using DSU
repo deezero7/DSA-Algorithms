@@ -1,0 +1,58 @@
+class Solution {
+  public:
+    // code for dsu with path compress and rank
+    vector<int> parent;
+    vector<int> rank;
+    
+    int find(int x) {
+        if(parent[x] == x)
+            return x;
+        
+        return parent[x] = find(parent[x]);
+    }
+    
+    void Union(int x, int y) {
+        int x_parent = find(x);
+        int y_parent = find(y);
+ 
+    
+        if(rank[x_parent] > rank[y_parent]) {
+            parent[y_parent] = x_parent;
+        } else if(rank[x_parent] < rank[y_parent]) {
+            parent[x_parent] = y_parent;
+        } else {
+            parent[x_parent] = y_parent;
+            rank[y_parent]++;
+        }
+    }
+    // Function to detect cycle using DSU in an undirected graph.
+    int detectCycle(int V, vector<int> adj[]) {
+        // Code here
+        //initialize the parent and rank vector for dsu
+        parent.resize(V);
+        rank.resize(V);
+        for(int i=0; i<V; i++){
+            parent[i] = i;
+            rank[i] = 1;
+        }
+        
+        for(int i=0; i<V; i++){
+            for(auto& ele: adj[i]){
+                
+                // undirected graph so need to check only one way, one time
+                if(i < ele){
+                    int i_parent = find(i);
+                    int ele_parent = find(ele);
+                    
+                    // if parent are same even check first time means cycle detected
+                    if(i_parent == ele_parent){
+                        return true;
+                    }
+                    
+                    Union(i, ele);
+                }
+            }
+        }
+        return false;
+    }
+};
