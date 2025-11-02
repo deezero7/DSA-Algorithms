@@ -7,10 +7,11 @@ class Solution {
     int find(int x) {
         if(parent[x] == x)
             return x;
-        
+        // path compression, just save latest parent
         return parent[x] = find(parent[x]);
     }
-    
+
+    // union by rank
     void Union(int x, int y) {
         int x_parent = find(x);
         int y_parent = find(y);
