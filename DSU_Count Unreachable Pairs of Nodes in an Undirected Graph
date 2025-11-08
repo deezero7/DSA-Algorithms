@@ -1,0 +1,62 @@
+class Solution {
+
+        vector<int> parent;
+        vector<int> rank;
+
+        int Find(int u){
+            if(parent[u] == u) return u;
+            // path compressed dfs;
+            return parent[u] = Find(parent[u]);
+        }
+
+        // union with rank
+        void Union(int x, int y){
+            int xParent = Find(x);
+            int yParent = Find(y);
+            if (xParent == yParent) return;
+
+            // acc to rank
+            if(rank[xParent] < rank[yParent]){
+                parent[xParent] = yParent;
+            }
+            else if(rank[yParent] < rank[xParent]){
+                parent[yParent] = xParent;
+            }
+            else{
+                parent[xParent] = yParent;
+                rank[xParent]++;
+            }
+        }
+
+public:
+    long long countPairs(int n, vector<vector<int>>& edges) {
+        
+        // initialize the parent and rank vector
+        parent.resize(n);
+        rank.resize(n);
+        for(int i=0; i<n; i++){
+            parent[i] = i;
+            rank[i] = 1;
+        }
+
+        // union it
+        for(auto& ele: edges){
+            Union(ele[0], ele[1]);
+        }
+
+        // get all element with parent numbers
+        unordered_map<int,int> umap;
+        for(int i=0; i<n; i++){
+            umap[Find(i)]++;
+        }
+
+        long long total =0;
+        int remain = n;
+        for(auto& ele: umap){
+            remain = remain - ele.second;
+            total += (long long)ele.second * (long long)remain;
+        }
+
+        return total;
+    }
+};
