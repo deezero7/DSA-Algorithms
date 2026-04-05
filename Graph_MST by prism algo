@@ -1,0 +1,52 @@
+class Solution {
+  public:
+    int spanningTree(int V, vector<vector<int>>& edges) {
+        // code here
+        // Minimum Spanning Tree by prism algo
+
+        // ajd list
+        unordered_map<int,vector<pair<int,int>>> umap;
+        for(auto& ele: edges){
+            int u = ele[0];
+            int v = ele[1];
+            int w = ele[2];
+            
+            umap[u].push_back({v,w});
+            umap[v].push_back({u,w});
+        }
+        
+        // for mst need to track whether node is in new tree or not so vec is needed
+        vector<int> inMst (V, 0);
+
+        int sum = 0;
+        // for traversal we take priority queue(min heap)
+        typedef pair<int,int> P;
+        priority_queue<P,vector<P>,greater<P>> pq;
+            
+        pq.push({0,0}); // start at 0 node
+        
+        while(!pq.empty()){
+            
+            // first element to pop
+            int node = pq.top().second;
+            int wgt = pq.top().first;
+            
+            pq.pop();
+            
+            if(inMst[node] == 1) continue;
+            inMst[node] = 1;
+            sum += wgt;
+            
+            // push connected nodes
+            for(auto ele: umap[node]){
+                
+                if(inMst[ele.first] == 0){
+                    pq.push({ele.second, ele.first});
+                }
+                
+            }
+        }
+        return sum;
+        
+    }
+};
