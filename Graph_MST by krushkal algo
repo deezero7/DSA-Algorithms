@@ -1,0 +1,78 @@
+class Solution {
+    
+    // MST by krushkal algo
+    
+    // dsu functions and vars
+    vector<int> parent;
+    vector<int> rank;
+    int Find(int i){
+        if(i == parent[i]){
+            return parent[i];
+        }
+        return parent[i]=Find(parent[i]); // compress path and save in parent too
+    }
+    // union by rank
+    void UnionRank(int i , int j){
+        // get the parent first
+        int parent_i = Find(i);
+        int parent_j = Find(j);
+        
+        if(parent_i == parent_j){
+            return; // they already same so no union needed
+        }
+        
+        if(rank[parent_i] > rank[parent_j]){
+            parent[parent_j] = parent_i;
+        }
+        else if(rank[parent_i] < rank[parent_j]){
+            parent[parent_i] = parent_j;
+        }
+        else{
+            // make same then increase one's rank and set it
+            parent[parent_i] = parent_j;
+            rank[parent_j]++;
+        }
+        
+    }
+    
+    void Krushkal(vector<vector<int>>& edg, int& sum){
+        
+        int n = edg.size();
+        for(int i =0; i<n; i++){
+            int u = edg[i][0];
+            int v = edg[i][1];
+            int w = edg[i][2];
+            
+            // find parent and union it
+            if(Find(u) != Find(v)){
+                // sum for ans
+                sum += w;
+                // union by rank
+                UnionRank(u,v);
+            }
+        }
+    }
+  public:
+    int spanningTree(int V, vector<vector<int>>& edges) {
+        
+        // MST by krushkal algo
+        
+        // first we sort acc to weight
+        auto compairator = [](vector<int>& a , vector<int>& b){
+            return a[2] < b[2];
+        };
+        std::sort(edges.begin(), edges.end(), compairator);
+        
+        // initilization for dsu vars
+        parent.resize(V);
+        rank.resize(V,1);
+        for(int i=0; i<V; i++){
+            parent[i] = i;
+        }
+        
+        int mstSum = 0;
+        Krushkal(edges, mstSum);
+        
+        return mstSum;
+    }
+};
