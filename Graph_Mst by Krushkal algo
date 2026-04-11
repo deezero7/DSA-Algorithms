@@ -1,0 +1,97 @@
+class Solution {
+
+    // disjoint set union (DSU) global Variables , parent and for path compression 'rank'
+    vector<int> parent;
+    vector<int> rank;
+    int Find(int i){
+        if(i == parent[i]){
+            return i;
+        }
+        return parent[i] = Find(parent[i]);  // it will compress the path while searching and saving in parent array
+    }
+    void Union(int a , int b){
+        // find parent of these nodes
+        int parent_a = Find(a);
+        int parent_b = Find(b);
+        // check if they are same then skip
+        if(parent_a == parent_b){
+            return;
+        }
+         
+        // union by rank so use rank array data
+        if(rank[parent_a] < rank[parent_b]){
+            // rank[parent_a]++; // only increase rank when they are equal , when one is high then its alreay higher
+            parent[parent_a] = parent_b;
+        }
+        else if(rank[parent_b] < rank[parent_a]){
+            // rank[parent_b]++; // only increase rank when they are equal , when one is high then its alreay higher
+            parent[parent_b] = parent_a;
+        }
+        else{
+            rank[parent_a]++; // here ranks are equal so increase one so one becomes higher
+            parent[parent_b] = parent_a; // and put new parent in parent array
+        }
+
+    }
+
+    void Krushkal(vector<vector<int>>& adjList, int& sum){
+
+        // start merging for smallest weight
+        int n = adjList.size(); // number of points in adjlist
+        for(int i=0; i<n ; i++){
+            int u = adjList[i][0];
+            int v = adjList[i][1];
+            int wgt = adjList[i][2];
+            // cout<< "u:" << u << " ";
+            // cout<< "v:" << v << " ";
+            // cout<< "wgt:" << wgt << " ";
+            // cout<< "Find:" << Find(u) << " | ";
+
+            // if parent are not same then we need to union it else not
+            if(Find(u) != Find(v)){
+                // if parent are same this edge 2 node then its added so no need to do it again cauz its sorted and added
+                sum += wgt;
+                // cout<< "sum" << sum << " ";
+                Union(u, v);
+            }
+        }
+    }
+
+public:
+    int minCostConnectPoints(vector<vector<int>>& points) {
+        
+        // mst by krushkal algo
+
+        // make adj list cauz we need to calculated the distance and make list
+        int n = points.size();
+        vector<vector<int>> adjList;
+        for(int i=0; i<n; i++){
+            // not need to calculate again same edge so +1;
+            for(int j=i+1; j<n; j++){
+                int x_dis = std::abs(points[i][0] - points[j][0]);
+                int y_dis = std::abs(points[i][1] - points[j][1]);
+
+                int total_dis = x_dis + y_dis;
+                adjList.push_back({i,j,total_dis});
+                // adjList.push_back({j,i,total_dis});  // undirected graph only one is enough
+            }
+        }
+
+        // sort it acc to weight;
+        auto comparator = [](const vector<int>& a,const vector<int>& b){
+            return a[2] < b[2];
+        };
+        std::sort(adjList.begin(), adjList.end(), comparator);
+
+        // before calling krushkal method it need DSU array so initialize it 
+        parent.resize(n);
+        rank.resize(n,1);
+        for(int i=0; i< n; i++){
+            parent[i] = i;
+        }
+
+        int sum = 0;
+        Krushkal(adjList, sum);
+        return sum;
+    }
+};
