@@ -1,0 +1,72 @@
+class Solution {
+    
+    void DfsStackFill(unordered_map<int, vector<int>>& umap,vector<int>& visited,stack<int>& st , int i){
+        visited[i] = 1;
+        for(auto& ele: umap[i]){
+            if(visited[ele] == 0){
+                DfsStackFill(umap, visited, st, ele); // first put all child 
+            }
+        }
+        // at end insert it in stack , once all traversal is done
+        st.push(i);   // then put parent in stack , topological sort using dfs not"push after recursion" (kahns algo-"indegree 0 first ")
+    }
+    
+    void DfsRevList(vector<vector<int>>& revAdj,vector<int>& visited, int i ){
+        visited[i] = 1;
+        
+        for(auto& ele: revAdj[i]){
+            if(visited[ele] == 0){
+                DfsRevList(revAdj, visited, ele);
+            }
+        }
+    }
+    
+  public:
+    int kosaraju(int V, vector<vector<int>> &edges) {
+        // code here
+        
+        // scc using kosaraju algo
+        // int n = edges.size();
+        // making adjacency list
+        unordered_map<int, vector<int>> umap;
+        for(auto& ele: edges){
+            umap[ele[0]].push_back(ele[1]);
+        }
+        
+        // step 1 - topological sort in stack uing dfs, u->v, then v comes first then u, so in scc 
+        stack<int> st;
+        vector<int> visited(V,0);
+        
+        for(int i=0; i<V; i++){
+            if(visited[i] == 0){
+                DfsStackFill(umap, visited, st, i); // dfs call to fill all its childs
+            }
+        }
+        
+        // step 2 reverse direction, so better do it on reverse adj list
+        vector<vector<int>> revAdj(V);
+        for(auto& ele: edges){
+            revAdj[ele[1]].push_back(ele[0]);
+        }
+        
+        // step 3 , dfs traversal on stack using reverse adj list
+        // reset visited array
+        visited = vector<int>(V, 0);
+        // for scc count var
+        int sccCount = 0;
+        
+        while(!st.empty()){
+            
+            int u = st.top();
+            st.pop();
+            // start dfs from neighbors of u
+            if(visited[u] == 0){
+                DfsRevList(revAdj, visited, u);
+                sccCount++;
+            }
+            
+            
+        }
+        return sccCount;
+    }
+};
