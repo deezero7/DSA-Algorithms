@@ -1,0 +1,73 @@
+class Solution {
+    
+    void DFS(int node, vector<int> adj[], vector<bool>& visited){  // adj is take as reference ,no need for '&' for array
+        
+        visited[node] = true;
+        
+        for(auto& ele: adj[node]){
+            if(visited[ele] == false){
+                DFS(ele, adj, visited);
+            }
+        }
+    }
+    
+    bool DisconnNoIndegree(int v, vector<int> adj[] ){
+        
+        vector<bool> visited(v, false); // for dfs
+        
+        // start with  indegree greater than 0
+        int NodeHiIndegree = -1;
+        for(int i=0; i< v; i++){
+            if(adj[i].size()> 0){  // though its undirected graph outgoin can be consider as indegree
+                NodeHiIndegree = i;
+                break;
+            }
+        }
+        if(NodeHiIndegree == -1){
+            return true; // no edges so automatically euler circut
+        }
+        
+        DFS(NodeHiIndegree, adj, visited);
+        
+        // // now check other component with some indegree . to ensure that all non-zero degree nodes are visted
+        // for(int i=0; i<v; i++){
+        //     if(visited[i] == false && adj[i].size() > 0){
+        //         DFS(i, adj, visited);
+        //     }
+        // }
+        
+        // now check if not visited node have exactly 0 indegree , then only valid euler circuit 
+        for(int i=0; i<v; i++){
+            if(visited[i] == false){
+                if(adj[i].size() != 0){
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+  public:
+    bool isEularCircuitExist(int v, vector<int> adj[]) {
+        // Code here
+        
+        
+        // check whether the graph is having multiple component or not and also check it do not have more that '0' indegree
+        // so if multi component then should have '0' indegree
+        if(DisconnNoIndegree(v, adj) == false){
+            return 0;
+        }
+        
+        
+        // to find the euler circut  all you need is indegree of node . all node indegree should be even number
+        for(int i=0; i< v; i++){
+            if(adj[i].size()%2 != 0){
+                return false;
+            } 
+        }
+        
+        return true;
+        
+    }
+};
