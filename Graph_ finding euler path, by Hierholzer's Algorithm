@@ -1,0 +1,64 @@
+class Solution {
+public:
+    vector<vector<int>> validArrangement(vector<vector<int>>& pairs) {
+        
+        // finding euler path, by Hierholzer's Algorithm
+        
+        int n = pairs.size();
+        // step 1 , make adjacency list
+        unordered_map<int,vector<int>> umap;
+        for(int i=0; i<n; i++){
+            umap[pairs[i][0]].push_back(pairs[i][1]);
+        }
+
+        // have indegree and outdegree dataStructure filled
+        unordered_map<int,int> indegree;
+        unordered_map<int,int> outdegree;
+        for(auto& ele: pairs){
+            outdegree[ele[0]]++;
+            indegree[ele[1]]++;
+        }
+
+        // find start node, so outdegree - indegree == 1
+        int startNode = pairs[0][0];
+        for(auto& ele: pairs){
+            if(outdegree[ele[0]] - indegree[ele[0]] == 1){
+                startNode = ele[0];
+                break;
+            }
+        }
+
+        // can use dfs or bfs , i use bfs stack, Hierholzer’s Algorithm
+        vector<int> path; // need path
+        stack<int> stk;
+        stk.push(startNode);
+
+        while(!stk.empty()){
+            // after first visit or using edge once remove it from adj list , rule of eluer path
+            // if reached last node exit loop
+            int node = stk.top();
+            
+            if(!umap[node].empty()){
+                // if its not empty then ,get its element,so you can access the back element so do it by .back()
+                int lnode = umap[node].back();
+                stk.push(lnode);
+                umap[node].pop_back();
+            }else{
+                path.push_back(node); // add this to direct path
+                stk.pop();
+            }
+        }
+
+       // 3. Reverse to get the correct order
+        reverse(path.begin(), path.end());
+
+        // for path to coordinates
+        vector<vector<int>> ans;
+        for(int i=0; i<path.size()-1; i++){
+            ans.push_back({path[i],path[i+1]});
+        }
+
+        return ans;
+
+    }
+};
