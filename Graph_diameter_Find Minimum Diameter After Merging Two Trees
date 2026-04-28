@@ -1,0 +1,79 @@
+class Solution {
+
+    pair<int,int> Dfs(unordered_map<int, vector<int>>& umap, int node){
+
+        // traverse
+        queue<int> que;
+        que.push(node);
+        // need visited dataset so no visit again
+        unordered_map<int, bool> visited;
+        visited[node]= true;
+        int length = 0;
+        int farthestNode = node;
+
+        while(!que.empty()){
+            // do level order travesal
+            int size = que.size();
+
+            for(int i=0; i< size; i++){
+                int ele1 = que.front();
+                que.pop();
+                farthestNode = ele1;
+                for(auto& ele: umap[ele1]){
+                    if(visited[ele] == false){
+                        que.push(ele);
+                        visited[ele] = true;
+                    }
+                }
+            }
+            if(!que.empty()){
+                length++;
+            }
+        }
+        return {farthestNode,length};
+    }
+
+    int getDiameter(unordered_map<int, vector<int>>& umap){
+        // to get diameter we need
+        // 1- from random node to farthest node (random as 0th node)
+        // 2- that farthest node is one end of diameter so
+        // 3- form that farthest node find other farthest node to get diameter
+
+        // 1 and we also get distance while traversing second value is of distance
+        pair<int,int> nodeEnd1Dist = Dfs(umap, 0); // 0 as random node 
+
+        // 2 
+        pair<int,int> nodeEnd2Dist = Dfs(umap, nodeEnd1Dist.first);
+        // return distance
+        return nodeEnd2Dist.second;
+    }
+
+    unordered_map<int, vector<int>> makeAdjList(vector<vector<int>>& edges){
+        unordered_map<int, vector<int>> umap;
+        for(auto& ele:edges){
+            int a = ele[0];
+            int b = ele[1];
+            umap[a].push_back(b);
+            umap[b].push_back(a);
+        }
+        return umap;
+    }
+public:
+    int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2) {
+        
+        // to get minimum diameter first get diameter
+        // make adj list for traversal
+        unordered_map<int, vector<int>> grp1 = makeAdjList(edges1);
+        unordered_map<int, vector<int>> grp2 = makeAdjList(edges2);
+
+        // get diameter
+        int diameter1 = getDiameter(grp1);
+        int diameter2 = getDiameter(grp2);
+        
+        int combinedDiameter = (diameter1 + 1)/2 + (diameter2 + 1)/2 +1; // formula to half them to connect for minimum dia ,at end +1 for extra edge added, and before +1 is for handel ceiling
+
+        // tackel edge case where one graph diameter is so big that adding 2nd still its diameter is still big but after combining still minimum diameter is still in big graph even aafter combinig
+        return std::max(diameter1, std::max(diameter2, combinedDiameter));
+
+    }
+};
