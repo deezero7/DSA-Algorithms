@@ -1,0 +1,47 @@
+class Solution {
+
+    vector<pair<int,int>> dir = {{0,1},{1,0},{0,-1},{-1,0}};
+public:
+    vector<vector<int>> highestPeak(vector<vector<int>>& isWater) {
+        
+        // using 'multi source Bfs'
+        int row = isWater.size();
+        int col = isWater[0].size();
+        vector<vector<int>> hight(row, vector<int>(col, -1));
+
+        queue<pair<int,int>> que;
+        for(int i=0; i<row; i++){
+            for(int j=0; j<col; j++){
+                if(isWater[i][j] == 1){
+                    hight[i][j] = 0;
+                    que.push({i,j}); // aslo push it in queue here only
+                }
+            }
+        }
+
+        // traverse
+        while(!que.empty()){
+            // its a level order traversal
+            int size = que.size();
+            for(int i=0;i<size;i++){
+                pair<int,int> ele = que.front();
+                que.pop();
+                int x = ele.first;
+                int y = ele.second;
+                for(int j =0;j<4; j++){
+                    // get new dir x, y
+                    int n_x = x + dir[j].first;
+                    int n_y = y + dir[j].second;
+                    // boundry check
+                    if(n_x >=0 && n_x < row && n_y >=0 && n_y < col && hight[n_x][n_y] == -1){
+                        hight[n_x][n_y] = hight[x][y] +1;
+                        que.push({n_x, n_y});
+                    }
+                }
+            }
+        }
+
+        return hight;
+
+    }
+};
